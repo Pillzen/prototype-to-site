@@ -1,10 +1,36 @@
 import { useState } from 'react';
+import { Button } from './ui/button';
+import { Github } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Hero = () => {
   const [inputValue, setInputValue] = useState('');
+  const navigate = useNavigate();
+
+  const handleAuth = async () => {
+    const { data: session } = await supabase.auth.getSession();
+    if (session?.session) {
+      // If logged in, sign out
+      await supabase.auth.signOut();
+    } else {
+      // If not logged in, redirect to auth page
+      navigate('/auth');
+    }
+  };
 
   return (
     <div className="relative min-h-[70vh] flex flex-col items-center justify-center px-4 hero-gradient">
+      <div className="absolute top-4 right-4">
+        <Button 
+          onClick={handleAuth} 
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Github className="w-5 h-5" />
+          Connect GitHub
+        </Button>
+      </div>
       <div className="animate-fade-up text-center space-y-6 max-w-3xl mx-auto">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
           Deepseek <span className="text-primary">Artifacts</span>
