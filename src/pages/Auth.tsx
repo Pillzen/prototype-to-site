@@ -27,6 +27,7 @@ const Auth = () => {
           appearance={{ theme: ThemeSupa }}
           providers={["github"]}
           redirectTo={window.location.origin}
+          showLinks={false}
         />
       </div>
     </div>
