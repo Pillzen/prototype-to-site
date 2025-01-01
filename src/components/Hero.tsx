@@ -1,21 +1,37 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Github } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from './ui/use-toast';
 
 export const Hero = () => {
   const [inputValue, setInputValue] = useState('');
-  const navigate = useNavigate();
 
-  const handleAuth = async () => {
-    const { data: session } = await supabase.auth.getSession();
-    if (session?.session) {
-      // If logged in, sign out
-      await supabase.auth.signOut();
-    } else {
-      // If not logged in, redirect to auth page
-      navigate('/auth');
+  const handleGithubAuth = async () => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session) {
+        // If logged in, sign out
+        await supabase.auth.signOut();
+        toast({
+          title: "Signed out successfully"
+        });
+      } else {
+        // If not logged in, sign in with GitHub
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'github',
+          options: {
+            redirectTo: window.location.origin
+          }
+        });
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      toast({
+        title: "Authentication error",
+        variant: "destructive"
+      });
     }
   };
 
@@ -23,7 +39,7 @@ export const Hero = () => {
     <div className="relative min-h-[70vh] flex flex-col items-center justify-center px-4 hero-gradient">
       <div className="absolute top-4 right-4">
         <Button 
-          onClick={handleAuth} 
+          onClick={handleGithubAuth} 
           variant="outline"
           className="flex items-center gap-2"
         >
